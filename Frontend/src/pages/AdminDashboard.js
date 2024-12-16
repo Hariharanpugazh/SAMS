@@ -145,7 +145,7 @@ const AdminDashboard = () => {
               type="text"
               value={selectedDate.toLocaleDateString("en-US", { weekday: "long" })}
               readOnly
-              className="w-1/2 p-3 text-lg font-semibold rounded-lg shadow-md text-black focus:ring-200 focus:ring-pink-500 transition-transform transform hover:scale-105"
+              className="w-1/2   p-3 text-lg font-semibold rounded-lg shadow-md text-black focus:ring-200 focus:ring-pink-500 transition-transform transform hover:scale-105"
             />
           </div>
           <div className="flex justify-center">
