@@ -17,12 +17,22 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://127.0.0.1:8000/api/accounts/login/', formData);
+      // API call for login
+      const response = await axios.post('http://127.0.0.1:8000/api/accounts/login/', formData);
+      const { role } = response.data; // Extract role from the backend response
+  
       setSuccess(true);
+  
       setTimeout(() => {
-        // alert("Navigating to the dashboard!");
-        navigate('/studentdashboard'); // Replace with actual navigation logic
-      }, 2000);
+        // Navigate based on role with state
+        if (role === 'admin') {
+          navigate('/admindashboard', { state: { role } });
+        } else if (role === 'student') {
+          navigate('/studentdashboard', { state: { role } });
+        } else {
+          setError('Unauthorized role');
+        }
+      }, 1000);
     } catch (err) {
       setError(err.response?.data?.error || 'Invalid credentials');
     }
@@ -32,7 +42,7 @@ const Login = () => {
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-800 to-black">
       <div className="w-full max-w-md p-8 rounded-2xl bg-white bg-opacity-10 backdrop-blur-lg shadow-2xl transform hover:scale-105 transition-all duration-500">
         <h2 className="text-4xl font-extrabold text-center text-white mb-6 animate-fadeInDown">Welcome Back</h2>
-        
+
         {/* Success Message */}
         {success && (
           <p className="text-green-400 text-center mb-4 animate-pulse">

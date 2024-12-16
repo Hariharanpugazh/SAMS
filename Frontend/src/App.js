@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import StudentDashboard from './pages/StudentDashboard';
 import QRCodePage from './pages/QRCode';
+import AdminDashboard from './pages/AdminDashboard';
 
 const App = () => {
     // Helper function to check if the user is authenticated
@@ -22,17 +23,27 @@ const App = () => {
                     {/* Register Page */}
                     <Route path="/register" element={<Register />} />
 
-                    {/* Studenet */}
-                    <Route path="/studentdashboard" element={<StudentDashboard />} />
+                    {/* Student Dashboard */}
+                    <Route 
+                        path="/studentdashboard" 
+                        element={isAuthenticated() ? <StudentDashboard /> : <Navigate to="/login" />} 
+                    />
+
+                    {/* Admin Dashboard */}
+                    <Route
+  path="/admindashboard"
+  element={<AdminDashboard />}
+/>
+<Route
+  path="/studentdashboard"
+  element={<StudentDashboard />}
+/>
+
+                    {/* QR Code Page */}
                     <Route path="/qrcode" element={<QRCodePage />} />
 
-                    {/* Teacher */}
-
-                    {/* Default Route: Redirect to Login if not authenticated */}
-                    <Route 
-                        path="*" 
-                        element={isAuthenticated() ? <Navigate to="/login" /> : <Navigate to="/login" />} 
-                    />
+                    {/* Default Route */}
+                    <Route path="*" element={<Navigate to="/login" />} />
                 </Routes>
             </div>
         </Router>

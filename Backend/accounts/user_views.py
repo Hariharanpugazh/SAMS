@@ -83,11 +83,11 @@ def login(request):
             # Success response
             return JsonResponse({
                 'message': 'Login successful',
+                'role': user['role'],  # Send the role directly
                 'user': {
                     'user_id': user['user_id'],
                     'name': user['name'],
-                    'email': user['email'],
-                    'role': user['role']
+                    'email': user['email']
                 }
             }, status=200)
 
