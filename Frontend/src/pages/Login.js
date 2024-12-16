@@ -20,7 +20,8 @@ const Login = () => {
       await axios.post('http://127.0.0.1:8000/api/accounts/login/', formData);
       setSuccess(true);
       setTimeout(() => {
-        alert("Navigating to the dashboard!"); // Replace with actual navigation logic
+        // alert("Navigating to the dashboard!");
+        navigate('/studentdashboard'); // Replace with actual navigation logic
       }, 2000);
     } catch (err) {
       setError(err.response?.data?.error || 'Invalid credentials');
