@@ -5,6 +5,8 @@ import Register from './pages/Register';
 import StudentDashboard from './pages/StudentDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import QRCodePage from './pages/QRCode';
+import AddStudents from './pages/AddStudents';
+
 
 const ProtectedRoute = ({ children, role }) => {
   const location = useLocation();
@@ -35,6 +37,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/addstudents" element={<AddStudents />} /> 
 
         {/* Student Dashboard */}
         <Route
