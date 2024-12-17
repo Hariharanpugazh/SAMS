@@ -5,6 +5,8 @@ import Register from './pages/Register';
 import StudentDashboard from './pages/StudentDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import QRCodePage from './pages/QRCode';
+import QRDisplayPage from './pages/QRDisplayPage';
+import ValidateQRPage from "./pages/ValidateQRPage";
 
 const ProtectedRoute = ({ children, role }) => {
   const location = useLocation();
@@ -27,26 +29,15 @@ const App = () => {
         <Route path="/register" element={<Register />} />
 
         {/* Admin Dashboard */}
-        <Route
-          path="/admindashboard"
-          element={
-            <ProtectedRoute role="admin">
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/admindashboard"element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>}/>
 
         {/* Student Dashboard */}
-        <Route
-          path="/studentdashboard"
-          element={
-            <ProtectedRoute role="student">
-              <StudentDashboard />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/studentdashboard"element={<ProtectedRoute role="student"><StudentDashboard /></ProtectedRoute>}/>
+        <Route path="/validate" element={<ValidateQRPage />} />
+        
         {/* QR Code Page */}
         <Route path="/qrcode" element={<QRCodePage />} />
+        <Route path="/qr-display" element={<QRDisplayPage />} />
         
         {/* Default Route */}
         <Route path="*" element={<Navigate to="/login" replace />} />

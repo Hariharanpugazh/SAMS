@@ -1,42 +1,102 @@
-import React from 'react';
-import { QRCodeCanvas } from 'qrcode.react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const QRCodePage = () => {
-  // Define the latitude and longitude of the college or company
-  const latitude = 12.971598; // Example: Replace with your actual latitude
-  const longitude = 77.594566; // Example: Replace with your actual longitude
-  const qrData = `Latitude: ${latitude}, Longitude: ${longitude}`; // Data to encode in the QR code
+const QRDetailsPage = () => {
+  const [className, setClassName] = useState('');
+  const [expiryMinutes, setExpiryMinutes] = useState('');
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
+  const navigate = useNavigate();
+
+  // Fetch user's geolocation
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        setLatitude(position.coords.latitude.toFixed(6));
+        setLongitude(position.coords.longitude.toFixed(6));
+      });
+    } else {
+      alert('Geolocation is not supported by this browser.');
+    }
+  }, []);
+
+  const handleConfirm = async () => {
+    const payload = {
+      class_name: className,
+      geolocation: {
+        latitude: latitude,
+        longitude: longitude,
+      },
+      expiry_minutes: parseInt(expiryMinutes, 10),
+    };
+
+    const response = await fetch('http://127.0.0.1:8000/api/accounts/api/generate_qr/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      sessionStorage.setItem('className', className);
+      navigate('/qr-display', {
+        state: { qrCode: data.qr_code, expiry: data.expiry },
+      });
+    } else {
+      alert('Failed to generate QR Code');
+    }
+  };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-800 to-black">
-      <div className="w-full max-w-md p-8 rounded-2xl bg-white bg-opacity-10 backdrop-blur-lg shadow-2xl transform hover:scale-105 transition-all duration-500">
-        <h2 className="text-3xl font-extrabold text-center text-white mb-6 animate-fadeInDown">
-          College QR Code
-        </h2>
-        <p className="text-lg text-gray-300 text-center mb-4">
-          Scan this QR code to get the location details.
-        </p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-800 to-black text-white animate-fadeIn">
+      <div className="bg-purple-900 p-8 rounded-lg shadow-lg w-96 animate-slideInUp">
+        <h2 className="text-3xl font-bold mb-6 text-center text-white-400">QR Code Details</h2>
 
-        {/* QR Code Display */}
-        <div className="flex justify-center">
-          <QRCodeCanvas
-            value={qrData}
-            size={200}
-            bgColor="#ffffff"
-            fgColor="#000000"
-            level="Q"
-            className="shadow-lg rounded-lg"
+        <div className="mb-4">
+          <label className="block mb-2 font-semibold">Class Name:</label>
+          <input
+            type="text"
+            value={className}
+            onChange={(e) => setClassName(e.target.value)}
+            placeholder="Enter Class Name"
+            className="w-full p-2 rounded-full bg-purple-700 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-transform transform hover:scale-105"
           />
         </div>
 
-        {/* Latitude and Longitude Display */}
-        <div className="mt-4 text-center text-gray-300">
-          <p><strong>Latitude:</strong> {latitude}</p>
-          <p><strong>Longitude:</strong> {longitude}</p>
+        <div className="mb-4">
+          <label className="block mb-2 font-semibold">Latitude:</label>
+          <div className="w-full p-2 rounded-full bg-purple-700 text-white">
+            {latitude || 'Fetching...'}
+          </div>
         </div>
+
+        <div className="mb-4">
+          <label className="block mb-2 font-semibold">Longitude:</label>
+          <div className="w-full p-2 rounded-full bg-purple-700 text-white">
+            {longitude || 'Fetching...'}
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <label className="block mb-2 font-semibold">Expiry Time (minutes):</label>
+          <input
+            type="number"
+            value={expiryMinutes}
+            onChange={(e) => setExpiryMinutes(e.target.value)}
+            placeholder="Enter Expiry Time"
+            className="w-full p-2 rounded-full bg-purple-700 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-transform transform hover:scale-105"
+          />
+        </div>
+
+        <button
+          onClick={handleConfirm}
+          className="w-full py-3 bg-gradient-to-r from-pink-500 to-pink-700 text-white font-bold rounded-full shadow-md transition-transform transform hover:scale-110 hover:from-pink-600 hover:to-pink-800"
+        >
+          Confirm
+        </button>
       </div>
     </div>
   );
 };
 
-export default QRCodePage;
+export default QRDetailsPage;

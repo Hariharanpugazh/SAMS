@@ -57,9 +57,16 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'Backend.urls'
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Frontend URL
+    "http://localhost:3000",
+    "http://192.168.1.8:3000",  # Frontend URL
 ]
 CORS_ORIGIN_ALLOW_ALL = True
+
+ALLOWED_HOSTS = [
+    'localhost',        # Allow localhost
+    '127.0.0.1',        # Allow loopback IP
+    '192.168.1.8',      # Add your local IP address
+]
 
 TEMPLATES = [
     {
@@ -94,7 +101,22 @@ DATABASES = {
     }
 }
 
-
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',  # Ignore debug and info messages
+            'propagate': True,
+        },
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
