@@ -13,42 +13,68 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 const AdminDashboard = () => {
+  const [students, setStudents] = useState([]);
+  const [attendanceData, setAttendanceData] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [attendanceData] = useState([
-    { name: "Ramkumar", status: "Present" },
-    { name: "Neha", status: "Absent" },
-    { name: "Janani", status: "Present" },
-    { name: "Ganesh", status: "Present" },
-  ]);
-
-  const [students] = useState([
-    { name: "Ramkumar", rollNo: "005" },
-    { name: "Neha", rollNo: "015" },
-    { name: "Janani", rollNo: "023" },
-    { name: "Ganesh", rollNo: "026" },
-  ]);
-
   const [currentPageStudents, setCurrentPageStudents] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const studentsPerPage = 4;
+  const studentsPerPage = 10;
 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Fetch students from the backend
+    const fetchStudents = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/accounts/getstudents/");
+        const data = await response.json();
+        if (response.ok) {
+          setStudents(data.students);
+        } else {
+          console.error("Error fetching students:", data.error);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+
+    // Fetch attendance data from the backend
+    const fetchAttendanceData = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/accounts/attendance/");
+        const data = await response.json();
+        if (response.ok) {
+          setAttendanceData(data.attendance); // Adjust according to API response structure
+        } else {
+          console.error("Error fetching attendance data:", data.error);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+
+    fetchStudents();
+    fetchAttendanceData();
+  }, []);
+
+  // Pagination logic
   const indexOfLastStudent = currentPageStudents * studentsPerPage;
   const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
-  const currentStudents = students.filter((student) =>
-    student.name.toLowerCase().includes(searchTerm.toLowerCase())
-  ).slice(indexOfFirstStudent, indexOfLastStudent);
+  const currentStudents = students
+    .filter((student) =>
+      student.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .slice(indexOfFirstStudent, indexOfLastStudent);
 
   const paginateStudents = (pageNumber) => setCurrentPageStudents(pageNumber);
-  const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/login");
   };
 
-  useEffect(() => {
-    document.body.style.animation = "fadeIn 1s ease-in-out";
-  }, []);
+  // Calculate total pages
+  const totalPages = Math.ceil(students.length / studentsPerPage);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-800 to-black text-white animate-fadeIn">
@@ -94,7 +120,9 @@ const AdminDashboard = () => {
                 ? "Attendance Today"
                 : "Students Absent"}
             </h3>
-            <p className="text-3xl font-bold">{i === 0 ? "120" : i === 1 ? "85%" : "18"}</p>
+            <p className="text-3xl font-bold">
+              {i === 0 ? students.length : i === 1 ? "85%" : "18"}
+            </p>
           </div>
         ))}
       </div>
@@ -110,12 +138,49 @@ const AdminDashboard = () => {
                 key={index}
                 className="p-2 bg-purple-800 rounded-lg mb-2 transition-transform transform hover:scale-105"
               >
-                {student.name} - {student.rollNo}
+                {student.name} - {student.registerNumber}
               </li>
             ))}
           </ul>
-        </div>
+          <button
+            onClick={() => navigate("/addstudents")}
+            className="mt-4 w-full py-2 bg-gradient-to-r from-pink-500 to-pink-700 text-white font-bold rounded-full shadow-md transition-transform transform hover:scale-110 hover:from-pink-600 hover:to-pink-800"
+          >
+            Add Students
+          </button>
 
+          {/* Pagination Controls */}
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={() => paginateStudents(currentPageStudents - 1)}
+              disabled={currentPageStudents === 1}
+              className="px-4 py-2 bg-purple-600 rounded-full text-white mx-2 disabled:bg-gray-400"
+            >
+              Previous
+            </button>
+            {[...Array(totalPages)].map((_, index) => (
+              <button
+                key={index}
+                onClick={() => paginateStudents(index + 1)}
+                className={`px-4 py-2 rounded-full mx-2 ${
+                  currentPageStudents === index + 1
+                    ? "bg-pink-600 text-white"
+                    : "bg-purple-600 text-white"
+                }`}
+              >
+                {index + 1}
+              </button>
+            ))}
+            <button
+              onClick={() => paginateStudents(currentPageStudents + 1)}
+              disabled={currentPageStudents === totalPages}
+              className="px-4 py-2 bg-purple-600 rounded-full text-white mx-2 disabled:bg-gray-400"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+        
         {/* Attendance List */}
         <div className="col-span-2 p-6 bg-purple-900 rounded-lg animate-fadeIn">
           <h2 className="text-2xl font-bold mb-4">Attendance</h2>
@@ -125,7 +190,7 @@ const AdminDashboard = () => {
                 key={index}
                 className="p-2 bg-purple-800 rounded-lg mb-2 transition-transform transform hover:scale-105"
               >
-                {record.name} - {record.status}
+                {record.name} - {record.status} - {record.time}
               </li>
             ))}
           </ul>
@@ -145,7 +210,7 @@ const AdminDashboard = () => {
               type="text"
               value={selectedDate.toLocaleDateString("en-US", { weekday: "long" })}
               readOnly
-              className="w-1/2   p-3 text-lg font-semibold rounded-lg shadow-md text-black focus:ring-200 focus:ring-pink-500 transition-transform transform hover:scale-105"
+              className="w-1/2 p-3 text-lg font-semibold rounded-lg shadow-md text-black focus:ring-200 focus:ring-pink-500 transition-transform transform hover:scale-105"
             />
           </div>
           <div className="flex justify-center">
