@@ -1,5 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddStudents = () => {
   const [formData, setFormData] = useState({
@@ -7,54 +11,71 @@ const AddStudents = () => {
     name: "",
     mobileNumber: "",
     department: "",
-    dob: "",
+    dob: null, // Changed to Date object for DatePicker
   });
 
-  const navigate = useNavigate(); // Used for navigation
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent the default form submission
+  const handleDateChange = (date) => {
+    setFormData({ ...formData, dob: date });
+  };
 
+  const getDayOfWeek = (date) => {
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    return date ? days[date.getDay()] : "";
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
       const response = await fetch("http://localhost:8000/api/accounts/addstudent/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          dob: formData.dob ? formData.dob.toISOString().split("T")[0] : "",
+        }),
       });
 
       if (response.ok) {
-        alert("Student added successfully!"); // Notify user of success
-        navigate("/admindashboard"); // Navigate to the admin dashboard after successful POST
+        toast.success("🎉 Student added successfully!", {
+          position: "top-center",
+          autoClose: 3000,
+          theme: "colored",
+        });
+        setTimeout(() => navigate("/admindashboard"), 3000);
       } else {
-        alert("Failed to add student. Please try again.");
+        toast.error("⚠️ Failed to add student. Please try again.");
       }
     } catch (error) {
       console.error("Error adding student:", error);
-      alert("An error occurred while adding the student.");
+      toast.error("🚨 An error occurred while adding the student.");
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-800 to-black text-white flex justify-center items-center">
+    <div className="min-h-screen bg-gradient-to-br from-purple-800 to-black flex items-center justify-center text-white animate-fadeIn">
       <form
-        onSubmit={handleSubmit} // Ensure the handleSubmit function is triggered on form submit
-        className="bg-purple-900 p-8 rounded-lg shadow-lg max-w-lg w-full"
+        onSubmit={handleSubmit}
+        className="bg-purple-900 p-8 rounded-lg shadow-2xl max-w-md w-full transform transition-transform hover:scale-105"
       >
-        <h2 className="text-2xl font-bold mb-6 text-center">Add New Student</h2>
+        <h2 className="text-3xl font-bold mb-6 text-center animate-slideInDown">
+          Add New Student
+        </h2>
+
         {[
           { label: "Register Number", name: "registerNumber", type: "text" },
           { label: "Name", name: "name", type: "text" },
           { label: "Mobile Number", name: "mobileNumber", type: "tel" },
           { label: "Department", name: "department", type: "text" },
-          { label: "Date of Birth", name: "dob", type: "date" },
         ].map((field, index) => (
-          <div key={index} className="mb-4">
-            <label htmlFor={field.name} className="block mb-1 font-semibold">
+          <div key={index} className="mb-6">
+            <label htmlFor={field.name} className="block mb-2 font-semibold text-gray-300">
               {field.label}
             </label>
             <input
@@ -64,17 +85,53 @@ const AddStudents = () => {
               value={formData[field.name]}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 rounded-lg bg-purple-700 text-white focus:ring focus:ring-pink-500 transition-transform transform hover:scale-105"
+              className="w-full px-4 py-2 rounded-full bg-purple-700 text-white placeholder-gray-300 focus:ring-2 focus:ring-pink-500 transition-transform transform hover:scale-105"
             />
           </div>
         ))}
+
+        {/* Date of Birth with Day Field */}
+        <div className="flex gap-4 items-center mb-6">
+          <div className="w-2/3">
+            <label htmlFor="dob" className="block mb-2 font-semibold text-gray-300">
+              Date of Birth
+            </label>
+            <DatePicker
+              selected={formData.dob}
+              onChange={handleDateChange}
+              dateFormat="dd-MM-yyyy"
+              placeholderText="Select Date"
+              showYearDropdown
+              scrollableYearDropdown
+              yearDropdownItemNumber={80}
+              showPopperArrow={false}
+              className="w-full px-4 py-2 rounded-full bg-purple-700 text-white placeholder-gray-300 focus:ring-2 focus:ring-pink-500 transition-transform transform hover:scale-105"
+            />
+          </div>
+          <div className="w-2/3">
+            <label htmlFor="day" className="block mb-2 font-semibold text-gray-300">
+              Day
+            </label>
+            <input
+              id="day"
+              type="text"
+              value={getDayOfWeek(formData.dob)}
+              readOnly
+              className="w-full px-4 py-2.5 rounded-full bg-purple-700 text-gray-100 focus:outline-none"
+            />
+          </div>
+        </div>
+
         <button
-          type="submit" // Submit the form, triggering handleSubmit
-          className="w-full py-2 bg-gradient-to-r from-pink-500 to-pink-700 text-white font-bold rounded-full shadow-md transition-transform transform hover:scale-110 hover:from-pink-600 hover:to-pink-800"
+          type="submit"
+          className="w-full py-3 bg-gradient-to-r from-pink-500 to-pink-700 text-white font-bold rounded-full shadow-lg transform transition-transform hover:scale-110 hover:from-pink-600 hover:to-pink-800"
         >
           Submit
         </button>
       </form>
+
+      {/* Toast Notification Container */}
+      <ToastContainer />
     </div>
   );
 };

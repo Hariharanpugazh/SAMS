@@ -7,7 +7,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import QRCodePage from './pages/QRCode';
 import QRDisplayPage from './pages/QRDisplayPage';
 import ValidateQRPage from "./pages/ValidateQRPage";
-
+import AddStudents from './pages/AddStudent';
 const ProtectedRoute = ({ children, role }) => {
   const location = useLocation();
   const state = location.state;
@@ -30,6 +30,7 @@ const App = () => {
 
         {/* Admin Dashboard */}
         <Route path="/admindashboard"element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>}/>
+        <Route path="/addstudents" element={<AddStudents />} /> 
 
         {/* Student Dashboard */}
         <Route path="/studentdashboard"element={<ProtectedRoute role="student"><StudentDashboard /></ProtectedRoute>}/>
