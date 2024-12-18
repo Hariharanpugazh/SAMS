@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import { FiLogOut, FiUser, FiMapPin, FiEdit2 } from "react-icons/fi";
 import { CheckCircle, Search } from "react-feather";
 import { MdQrCodeScanner } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 
 const StudentDashboard = () => {
+  const navigate = useNavigate();
   const [userName] = useState("Ramkumar");
   const [attendance, setAttendance] = useState([
     { date: "17-12-2024", time: "10:00 AM", status: "Present", location: "Classroom 1" },
@@ -151,7 +153,7 @@ const StudentDashboard = () => {
   </p>
   <div className="flex justify-center">
   <button
-    onClick={() => alert("QR Code Scanner Opened")}
+    onClick={() => navigate("/qrcodescanner")}
     className="flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-purple-600 hover:to-pink-500 px-6 py-2 rounded-full text-white font-semibold transition-transform transform hover:scale-105"
   >
     <MdQrCodeScanner size={20} />

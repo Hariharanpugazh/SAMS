@@ -59,6 +59,7 @@ ROOT_URLCONF = 'Backend.urls'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://192.168.1.8:3000",  # Frontend URL
+    "http://192.168.194.163:3000",  # Ajay Frontend URL 
 ]
 CORS_ORIGIN_ALLOW_ALL = True
 
@@ -66,6 +67,7 @@ ALLOWED_HOSTS = [
     'localhost',        # Allow localhost
     '127.0.0.1',        # Allow loopback IP
     '192.168.1.8',      # Add your local IP address
+    '192.168.194.163',  # Ajay local IP
 ]
 
 TEMPLATES = [

@@ -8,6 +8,9 @@ import QRCodePage from './pages/QRCode';
 import QRDisplayPage from './pages/QRDisplayPage';
 import ValidateQRPage from "./pages/ValidateQRPage";
 import AddStudents from './pages/AddStudent';
+import QRCodeScanner from './pages/QRCodeScanner';
+import MarkAttendance from './pages/MarkAttendance';
+
 const ProtectedRoute = ({ children, role }) => {
   const location = useLocation();
   const state = location.state;
@@ -35,6 +38,8 @@ const App = () => {
         {/* Student Dashboard */}
         <Route path="/studentdashboard"element={<ProtectedRoute role="student"><StudentDashboard /></ProtectedRoute>}/>
         <Route path="/validate" element={<ValidateQRPage />} />
+        <Route path="/qrcodescanner" element={<QRCodeScanner />} />
+        <Route path="/markattendance" element={<MarkAttendance />} />
         
         {/* QR Code Page */}
         <Route path="/qrcode" element={<QRCodePage />} />
