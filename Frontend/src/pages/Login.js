@@ -19,7 +19,8 @@ const Login = () => {
     try {
       // API call for login
       // const backendURL = "http://192.168.1.8:8000";
-      const response = await axios.post(`http://127.0.0.1:8000/api/accounts/login/`, formData);
+      const backendURL = "http://192.168.194.163:8000"; 
+      const response = await axios.post(`${backendURL}/api/accounts/login/`, formData);
       const { role } = response.data; // Extract role from the backend response
 
       setSuccess(true);
