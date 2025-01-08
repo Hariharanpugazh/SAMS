@@ -9,13 +9,15 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from haversine import haversine
 from datetime import timezone
+import logging
+
+logger = logging.getLogger(__name__)
 
 # MongoDB Client
 client = pymongo.MongoClient(settings.DATABASES['default']['CLIENT']['host'])
-db = client['SAMS']  # Access database
-qr_collection = db['qr_codes']  # Collection for storing QR code details
+db = client['SAMS']
+qr_collection = db['qr_codes']
 
-# Function 1: Create QR Code with Geolocation, Class Name, Date, and Time
 @csrf_exempt
 def generate_qr_code(request):
     try:
@@ -24,11 +26,11 @@ def generate_qr_code(request):
             class_name = payload.get("class_name", "N/A")
             latitude = payload.get("latitude", 0.0)
             longitude = payload.get("longitude", 0.0)
-            expiry_minutes = int(payload.get("expiry_time", 10))
+            expiry_minutes = int(payload.get("expiry_minutes", 10))
 
             expiry_time = datetime.now() + timedelta(minutes=expiry_minutes)
 
-            # QR code data
+            # QR Code Data
             qr_data = {
                 "class_name": class_name,
                 "geolocation": {"latitude": latitude, "longitude": longitude},
@@ -37,13 +39,9 @@ def generate_qr_code(request):
                 "expiry": expiry_time.isoformat(),
             }
 
-            # Encode data to base64
             qr_data_base64 = base64.b64encode(json.dumps(qr_data).encode()).decode()
+            frontend_url = f"https://sams-coral-beta.vercel.app/validate?data={qr_data_base64}"
 
-            # URL to navigate to the frontend validation page
-            frontend_url = f"http://<YOUR_PUBLIC_URL>/validate?data={qr_data_base64}"
-
-            # Generate the QR Code with the URL
             qr = qrcode.make(frontend_url)
             buffer = BytesIO()
             qr.save(buffer, format="PNG")
@@ -57,7 +55,9 @@ def generate_qr_code(request):
 
         return JsonResponse({"error": "Invalid request method"}, status=400)
     except Exception as e:
+        logger.error(f"Error in generate_qr_code: {str(e)}")
         return JsonResponse({"error": str(e)}, status=500)
+
 
 # Function 2 and 3: Receive Student Info and Verify Attendance
 @csrf_exempt
